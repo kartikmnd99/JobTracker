@@ -22,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddScoped<IInterviewRepository, InterviewRepository>();
 
         return services;
     }
