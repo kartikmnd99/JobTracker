@@ -11,6 +11,7 @@ public class Interview
     public InterviewMode Mode { get; set; }
     public string? Result { get; set; }
     public string? Feedback { get; set; }
+    public DateTime? ReminderSentAt { get; set; }   // new
 
     public JobApplication JobApplication { get; set; } = null!;
 }

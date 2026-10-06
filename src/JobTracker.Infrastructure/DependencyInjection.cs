@@ -1,5 +1,7 @@
 using JobTracker.Application.Interfaces;
+using JobTracker.Infrastructure.Background;
 using JobTracker.Infrastructure.Data;
+using JobTracker.Infrastructure.Email;
 using JobTracker.Infrastructure.Repositories;
 using JobTracker.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +19,24 @@ public static class DependencyInjection
             options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
 
         services.Configure<JwtSettings>(config.GetSection("Jwt"));
+        services.Configure<SmtpSettings>(config.GetSection("Smtp"));
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
-        services.AddSingleton<IPasswordHasher, PasswordHasher>();
-        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IInterviewRepository, InterviewRepository>();
         services.AddScoped<IDashboardRepository, DashboardRepository>();
+        services.AddScoped<IReminderRepository, ReminderRepository>();
+
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+
+        // Real email only if SMTP is configured, otherwise just log the email
+        if (!string.IsNullOrWhiteSpace(config["Smtp:Host"]))
+            services.AddSingleton<IEmailSender, SmtpEmailSender>();
+        else
+            services.AddSingleton<IEmailSender, LogEmailSender>();
+
+        services.AddHostedService<ReminderBackgroundService>();
 
         return services;
     }
