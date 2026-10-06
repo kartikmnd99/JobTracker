@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using JobTracker.Api.Middleware;
 using JobTracker.Application;
 using JobTracker.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();   // new
+builder.Services.AddProblemDetails();                              // new
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -51,6 +55,8 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();   // new: must be first in the pipeline
 
 if (app.Environment.IsDevelopment())
 {
